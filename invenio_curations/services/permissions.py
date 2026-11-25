@@ -27,6 +27,7 @@ from .generators import (
     IfCurationRequestAccepted,
     IfCurationRequestBasedExists,
     IfRequestTypes,
+    IfRestrictedCurationModerators,
     TopicPermission,
 )
 
@@ -38,13 +39,13 @@ class CurationRDMRecordPermissionPolicy(RDMRecordPermissionPolicy):
         IfCurationRecordBasedExists(then_=[CurationModerators()], else_=[]),
     ]
     can_view = RDMRecordPermissionPolicy.can_view + [
-        IfCurationRecordBasedExists(then_=[CurationModerators()], else_=[]),
+        IfRestrictedCurationModerators("record"),
     ]
     can_read = RDMRecordPermissionPolicy.can_read + [
-        IfCurationRecordBasedExists(then_=[CurationModerators()], else_=[]),
+        IfRestrictedCurationModerators("record"),
     ]
     can_read_files = RDMRecordPermissionPolicy.can_read_files + [
-        IfCurationRecordBasedExists(then_=[CurationModerators()], else_=[]),
+        IfRestrictedCurationModerators("files"),
     ]
 
     # in order to get all base permissions in, we just add ours instead of adapting the then_ clause of the base permission
@@ -79,7 +80,7 @@ class CurationRDMRecordPermissionPolicy(RDMRecordPermissionPolicy):
     )
 
     can_media_read_files = RDMRecordPermissionPolicy.can_media_read_files + [
-        IfCurationRecordBasedExists(then_=[CurationModerators()], else_=[]),
+        IfRestrictedCurationModerators("record"),
     ]
     can_media_get_content_files = (
         RDMRecordPermissionPolicy.can_media_get_content_files

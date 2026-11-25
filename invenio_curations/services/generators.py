@@ -17,6 +17,7 @@ from invenio_access.permissions import Permission, system_identity
 from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_rdm_records.records.api import RDMDraft
 from invenio_rdm_records.requests.entity_resolvers import RDMRecordProxy
+from invenio_rdm_records.services.generators import IfRestricted
 from invenio_records_permissions.generators import ConditionalGenerator, Generator
 from invenio_requests.customizations.request_types import RequestType
 from invenio_requests.records.api import Request
@@ -217,3 +218,24 @@ class IfCurationRecordBasedExists(ConditionalGenerator):
             topic=record,
         )
         return bool(request)
+
+
+class IfRestrictedCurationModerators(IfRestricted):
+    """Moderator access through curation, for restricted records or files only.
+
+    The curation branch only grants the moderation role. When ``field`` is
+    public, everyone can already read, so looking up the curation request
+    could not change the outcome and is skipped.
+    """
+
+    def __init__(self, field: str) -> None:
+        """Constructor, with ``field`` being "record" or "files"."""
+        super().__init__(
+            field,
+            then_=[IfCurationRecordBasedExists(then_=[CurationModerators()], else_=[])],
+            else_=[],
+        )
+
+    def query_filter(self, **__: Any) -> list:
+        """Add no search filter, like the curation generator it wraps."""
+        return []
